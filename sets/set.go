@@ -175,3 +175,5 @@ func (s *set) Contains(s2 Set) bool {
 
 	return true
 }
+
+// TODO: difference, intersection, union
