@@ -2,16 +2,20 @@ package sets
 
 // return s1 - s2
 func Difference(s1 Set, s2 Set) Set {
+	if s1 == nil {
+		return New()
+	}
+
 	s1.readLock()
 	defer s1.readUnlock()
-	s2.readLock()
-	defer s2.readUnlock()
 
 	diff := s1.Copy()
-
-	if s1 == nil || s2 == nil {
+	if s2 == nil {
 		return diff
 	}
+
+	s2.readLock()
+	defer s2.readUnlock()
 
 	return diff.Remove(s2.Values()...)
 }
@@ -45,7 +49,7 @@ func Intersection(s1 Set, s2 Set) Set {
 func Union(s1 Set, s2 Set) Set {
 	union := New()
 
-	if s1 == nil || s2 == nil {
+	if s1 == nil && s2 == nil {
 		return union
 	}
 
@@ -53,6 +57,13 @@ func Union(s1 Set, s2 Set) Set {
 	defer s1.readUnlock()
 	s2.readLock()
 	defer s2.readUnlock()
+
+	if s1 == nil {
+		return New(s2.Values()...)
+	}
+	if s2 == nil {
+		return New(s1.Values()...)
+	}
 
 	union.Add(s1.Values()...)
 	union.Add(s2.Values()...)
@@ -74,7 +85,7 @@ func Equals(s1 Set, s2 Set) bool {
 	s2.readLock()
 	defer s2.readUnlock()
 
-	if len(s2.Values()) != len(s2.Values()) {
+	if len(s1.Values()) != len(s2.Values()) {
 		return false
 	}
 
@@ -95,7 +106,9 @@ func Equals(s1 Set, s2 Set) bool {
 func Contains(s1 Set, s2 Set) bool {
 	if s1 == nil && s2 == nil {
 		return true
-	} else if s2 == nil {
+	}
+
+	if s2 == nil {
 		return false
 	}
 

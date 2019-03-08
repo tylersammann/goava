@@ -159,7 +159,6 @@ func main() {
 
 	union3 := sets.Union(setC, sets.New())
 	fmt.Printf("union %v %v: %v\n", setC, sets.New(), union3)
-
 }
 
 func printSet(str string, set sets.Set) {
