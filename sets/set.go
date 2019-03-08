@@ -14,10 +14,13 @@ type Set interface {
 	String() string
 
 	Has(item interface{}) bool
-	Add(items ...interface{}) error
-	Remove(items ...interface{}) error
-	Equals(s2 Set) bool
-	Contains(s2 Set) bool
+	Add(items ...interface{}) Set
+	Remove(items ...interface{}) Set
+	Copy() Set
+
+	// package private
+	readLock()
+	readUnlock()
 }
 
 type set struct {
@@ -27,18 +30,13 @@ type set struct {
 	rtype reflect.Type
 }
 
-func New(items ...interface{}) (Set, error) {
-	s := set{
+func New(items ...interface{}) Set {
+	s := &set{
 		store: make(map[interface{}]struct{}),
 		mutex: sync.RWMutex{},
 	}
 
-	err := s.Add(items...)
-	if err != nil {
-		return nil, err
-	}
-
-	return &s, nil
+	return s.Add(items...)
 }
 
 func (s *set) Values() []interface{} {
@@ -82,9 +80,9 @@ func (s *set) Has(item interface{}) bool {
 	return has
 }
 
-func (s *set) Add(items ...interface{}) error {
+func (s *set) Add(items ...interface{}) Set {
 	if len(items) == 0 {
-		return nil
+		return s
 	}
 
 	s.mutex.Lock()
@@ -94,17 +92,17 @@ func (s *set) Add(items ...interface{}) error {
 		if idx == 0 && len(s.store) == 0 {
 			s.rtype = reflect.TypeOf(item)
 		} else if s.rtype != reflect.TypeOf(item) {
-			return fmt.Errorf("cannot add item of incorrect type: %s", reflect.TypeOf(item).String())
+			panic(fmt.Errorf("cannot add item of incorrect type: %s", reflect.TypeOf(item).String()))
 		}
 		s.store[item] = SetVal
 	}
 
-	return nil
+	return s
 }
 
-func (s *set) Remove(items ...interface{}) (err error) {
+func (s *set) Remove(items ...interface{}) Set {
 	if len(items) == 0 {
-		return err
+		return s
 	}
 
 	s.mutex.Lock()
@@ -112,68 +110,26 @@ func (s *set) Remove(items ...interface{}) (err error) {
 
 	for _, item := range items {
 		if s.rtype != reflect.TypeOf(item) {
-			err = fmt.Errorf("cannot remove item of incorrect type: %s", reflect.TypeOf(item).String())
+			panic(fmt.Errorf("cannot remove item of incorrect type: %s", reflect.TypeOf(item).String()))
 		}
 		delete(s.store, item)
 	}
 
-	return err
+	return s
 }
 
-func (s *set) Equals(s2 Set) bool {
-	if s2 == nil {
-		return false
-	}
-
+// This copy is shallow. It does not deep-copy values recursively
+func (s *set) Copy() Set {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	if len(s.store) != len(s2.Values()) {
-		return false
-	}
-
-	if s.rtype != s2.RType() {
-		return false
-	}
-
-	for item := range s.store {
-		if !s2.Has(item) {
-			return false
-		}
-	}
-
-	return true
+	return New(s.Values()...)
 }
 
-func (s *set) Contains(s2 Set) bool {
-	// Treat nil as empty set
-	if s2 == nil {
-		return true
-	}
-
+func (s *set) readLock() {
 	s.mutex.RLock()
-	defer s.mutex.RUnlock()
-
-	// Every set contains the empty set (regardless of type)
-	if len(s2.Values()) == 0 {
-		return true
-	}
-
-	if s.rtype != s2.RType() {
-		return false
-	}
-
-	if len(s2.Values()) > len(s.store) {
-		return false
-	}
-
-	for _, item := range s2.Values() {
-		if !s2.Has(item) {
-			return false
-		}
-	}
-
-	return true
 }
 
-// TODO: difference, intersection, union
+func (s *set) readUnlock() {
+	s.mutex.RUnlock()
+}
