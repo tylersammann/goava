@@ -89,7 +89,7 @@ func Equals(s1 Set, s2 Set) bool {
 		return false
 	}
 
-	if s1.RType() != s2.RType() {
+	if s1.rType() != s2.rType() {
 		return false
 	}
 
@@ -122,7 +122,7 @@ func Contains(s1 Set, s2 Set) bool {
 		return true
 	}
 
-	if s1.RType() != s2.RType() {
+	if s1.rType() != s2.rType() {
 		return false
 	}
 

@@ -10,7 +10,6 @@ var SetVal = struct{}{}
 
 type Set interface {
 	Values() []interface{}
-	RType() reflect.Type
 	String() string
 
 	Has(item interface{}) bool
@@ -19,6 +18,7 @@ type Set interface {
 	Copy() Set
 
 	// package private
+	rType() reflect.Type
 	readLock()
 	readUnlock()
 }
@@ -49,13 +49,6 @@ func (s *set) Values() []interface{} {
 	}
 
 	return list
-}
-
-func (s *set) RType() reflect.Type {
-	s.mutex.RLock()
-	defer s.mutex.RUnlock()
-
-	return s.rtype
 }
 
 func (s *set) String() string {
@@ -124,6 +117,15 @@ func (s *set) Copy() Set {
 	defer s.mutex.RUnlock()
 
 	return New(s.Values()...)
+}
+
+// Package private methods
+
+func (s *set) rType() reflect.Type {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	return s.rtype
 }
 
 func (s *set) readLock() {
