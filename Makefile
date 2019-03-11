@@ -1,6 +1,6 @@
 SHELL=/bin/bash
 
-.PHONY: dep-ensure format lint test
+.PHONY: dep-ensure format lint run-example test
 
 dep-ensure:
 	dep ensure
