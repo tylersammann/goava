@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/blacklocus/goava/sets"
 	"fmt"
+	"github.com/blacklocus/goava/sets"
 )
 
 func main() {
@@ -149,7 +149,6 @@ func main() {
 
 	inter3 := sets.Intersection(setC, sets.New())
 	fmt.Printf("intersection %v %v: %v\n", setC, sets.New(), inter3)
-
 
 	union := sets.Union(setC, setD)
 	fmt.Printf("union %v %v: %v\n", setC, setD, union)

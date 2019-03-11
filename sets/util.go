@@ -1,6 +1,6 @@
 package sets
 
-// return s1 - s2
+// Difference return s1 - s2
 func Difference(s1 Set, s2 Set) Set {
 	if s1 == nil {
 		return New()
@@ -78,7 +78,7 @@ func Union(s1 Set, s2 Set) Set {
 	return union
 }
 
-// Return true if s1 has the same elements as s2
+// Equals returns true if s1 has the same elements as s2
 func Equals(s1 Set, s2 Set) bool {
 	if s1 == nil && s2 == nil {
 		return true
@@ -108,7 +108,7 @@ func Equals(s1 Set, s2 Set) bool {
 	return differentItem == nil
 }
 
-// Return true if s1 contains s2
+// Contains returns true if s1 contains s2
 func Contains(s1 Set, s2 Set) bool {
 	if s1 == nil && s2 == nil {
 		return true

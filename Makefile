@@ -10,7 +10,7 @@ format:
 
 lint: dep-ensure
 	go vet ./... && \
-	golint -set_exit_status `go list ./... | grep -v /vendor/`
+		gometalinter.v2 ./...
 
 run-example: dep-ensure
 	go run main.go
