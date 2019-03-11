@@ -133,7 +133,12 @@ func (s *set) Copy() Set {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	return New(s.Values()...)
+	copySet := New()
+	for item := range s.store {
+		copySet.Add(item)
+	}
+
+	return copySet
 }
 
 func (s *set) ForEach(fn func(interface{})) {
