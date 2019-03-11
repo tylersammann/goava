@@ -8,16 +8,19 @@ func Difference(s1 Set, s2 Set) Set {
 
 	s1.readLock()
 	defer s1.readUnlock()
+	s2.readLock()
+	defer s2.readUnlock()
 
 	diff := s1.Copy()
 	if s2 == nil {
 		return diff
 	}
 
-	s2.readLock()
-	defer s2.readUnlock()
+	s2.ForEach(func(item interface{}) {
+		diff.Remove(item)
+	})
 
-	return diff.Remove(s2.Values()...)
+	return diff
 }
 
 func Intersection(s1 Set, s2 Set) Set {
@@ -32,16 +35,16 @@ func Intersection(s1 Set, s2 Set) Set {
 	s2.readLock()
 	defer s2.readUnlock()
 
-	for _, item := range s1.Values() {
+	s1.ForEach(func(item interface{}) {
 		if s2.Has(item) {
 			inter.Add(item)
 		}
-	}
-	for _, item := range s2.Values() {
+	})
+	s2.ForEach(func(item interface{}) {
 		if s1.Has(item) {
 			inter.Add(item)
 		}
-	}
+	})
 
 	return inter
 }
@@ -59,14 +62,19 @@ func Union(s1 Set, s2 Set) Set {
 	defer s2.readUnlock()
 
 	if s1 == nil {
-		return New(s2.Values()...)
+		return s2.Copy()
 	}
 	if s2 == nil {
-		return New(s1.Values()...)
+		return s1.Copy()
 	}
 
-	union.Add(s1.Values()...)
-	union.Add(s2.Values()...)
+	s1.ForEach(func(item interface{}) {
+		union.Add(item)
+	})
+	s2.ForEach(func(item interface{}) {
+		union.Add(item)
+	})
+
 	return union
 }
 
@@ -85,7 +93,7 @@ func Equals(s1 Set, s2 Set) bool {
 	s2.readLock()
 	defer s2.readUnlock()
 
-	if len(s1.Values()) != len(s2.Values()) {
+	if s1.Size() != s2.Size() {
 		return false
 	}
 
@@ -93,13 +101,11 @@ func Equals(s1 Set, s2 Set) bool {
 		return false
 	}
 
-	for _, item := range s1.Values() {
-		if !s2.Has(item) {
-			return false
-		}
-	}
+	differentItem := s1.FindFirst(func(item interface{}) bool {
+		return !s2.Has(item)
+	})
 
-	return true
+	return differentItem == nil
 }
 
 // Return true if s1 contains s2
@@ -118,7 +124,7 @@ func Contains(s1 Set, s2 Set) bool {
 	defer s2.readUnlock()
 
 	// Every set contains the empty set (regardless of type)
-	if len(s2.Values()) == 0 {
+	if s2.Size() == 0 {
 		return true
 	}
 
@@ -126,15 +132,13 @@ func Contains(s1 Set, s2 Set) bool {
 		return false
 	}
 
-	if len(s2.Values()) > len(s1.Values()) {
+	if s2.Size() > s2.Size() {
 		return false
 	}
 
-	for _, item := range s2.Values() {
-		if !s2.Has(item) {
-			return false
-		}
-	}
+	differentItem := s2.FindFirst(func(item interface{}) bool {
+		return !s1.Has(item)
+	})
 
-	return true
+	return differentItem == nil
 }

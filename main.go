@@ -64,7 +64,7 @@ func main() {
 	emptySet2 := sets.New()
 	fmt.Printf("empty set equals empty set: %v\n", sets.Equals(emptySet, emptySet2))
 
-	strSet2 := sets.New(strSet.Values()...)
+	strSet2 := strSet.Copy()
 	fmt.Printf("str set equals str set 2: %v\n", sets.Equals(strSet, strSet2))
 	strSet2.Add("non-sense")
 	fmt.Printf("should not equal diff str set: %v\n", sets.Equals(strSet, strSet2))
@@ -117,8 +117,8 @@ func main() {
 	//ct5 := sets.New([2]string{"hi", "there"}, [2]int{2, 3})
 	//fmt.Printf("%v %v\n", ct5, err)
 
-	copy := ct1.Copy()
-	fmt.Println(copy)
+	copy1 := ct1.Copy()
+	fmt.Println(copy1)
 
 	// Difference
 	fmt.Print("\n== Difference ==\n")
