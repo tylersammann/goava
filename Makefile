@@ -8,7 +8,7 @@ dep-ensure:
 format:
 	go fmt $$(go list ./... | grep -v /vendor/)
 
-lint: dep-ensure
+lint:
 	go vet ./... && \
 		gometalinter.v2 ./...
 
@@ -25,4 +25,4 @@ fail-prev:
 		false; \
 	fi
 
-pull-request: dep-ensure fail-prev format fail-prev lint test
+pull-request: format fail-prev lint test
