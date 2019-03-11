@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/blacklocus/goava/sets"
+	"github.com/tylersammann/goava/sets"
 )
 
 func main() {
