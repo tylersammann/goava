@@ -113,6 +113,10 @@ func (s *set) Remove(items ...interface{}) Set {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
+	if len(s.store) == 0 {
+		return s
+	}
+
 	for _, item := range items {
 		if s.rtype != reflect.TypeOf(item) {
 			panic(fmt.Errorf("cannot remove item of incorrect type: %s", reflect.TypeOf(item).String()))
