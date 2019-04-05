@@ -21,6 +21,12 @@ type Set interface {
 	ForEach(fn func(interface{}))
 	FindFirst(fn func(interface{}) bool) interface{}
 
+	Equals(s2 Set) bool
+	Contains(s2 Set) bool
+	Difference(s2 Set) Set
+	Intersection(s2 Set) Set
+	Union(s2 Set) Set
+
 	// package private
 	rType() reflect.Type
 	readLock()
@@ -165,6 +171,129 @@ func (s *set) FindFirst(fn func(interface{}) bool) interface{} {
 		}
 	}
 	return nil
+}
+
+// Equals returns true if s has the same elements as s2
+// Does not respect different memory addresses (for that, use ==)
+func (s *set) Equals(s2 Set) bool {
+	if s2 == nil {
+		return false
+	}
+
+	s.readLock()
+	defer s.readUnlock()
+	s2.readLock()
+	defer s2.readUnlock()
+
+	if s.Size() != s2.Size() {
+		return false
+	}
+
+	if s.rType() != s2.rType() {
+		return false
+	}
+
+	differentItem := s.FindFirst(func(item interface{}) bool {
+		return !s2.Has(item)
+	})
+
+	return differentItem == nil
+}
+
+func (s *set) Contains(s2 Set) bool {
+	if s2 == nil {
+		return true
+	}
+
+	s.readLock()
+	defer s.readUnlock()
+	s2.readLock()
+	defer s2.readUnlock()
+
+	// Every set contains the empty set (regardless of type)
+	if s2.Size() == 0 {
+		return true
+	}
+
+	if s.rType() != s2.rType() {
+		return false
+	}
+
+	if s2.Size() > s2.Size() {
+		return false
+	}
+
+	differentItem := s2.FindFirst(func(item interface{}) bool {
+		return !s.Has(item)
+	})
+
+	return differentItem == nil
+}
+
+func (s *set) Difference(s2 Set) Set {
+	s.readLock()
+	defer s.readUnlock()
+	s2.readLock()
+	defer s2.readUnlock()
+
+	diff := s.Copy()
+	if s2 == nil {
+		return diff
+	}
+
+	s2.ForEach(func(item interface{}) {
+		diff.Remove(item)
+	})
+
+	return diff
+}
+
+func (s *set) Intersection(s2 Set) Set {
+	inter := New()
+
+	if s2 == nil {
+		return inter
+	}
+
+	s.readLock()
+	defer s.readUnlock()
+	s2.readLock()
+	defer s2.readUnlock()
+
+	s.ForEach(func(item interface{}) {
+		if s2.Has(item) {
+			inter.Add(item)
+		}
+	})
+	s2.ForEach(func(item interface{}) {
+		if s.Has(item) {
+			inter.Add(item)
+		}
+	})
+
+	return inter
+}
+
+func (s *set) Union(s2 Set) Set {
+	union := New()
+
+	s.readLock()
+	defer s.readUnlock()
+	s2.readLock()
+	defer s2.readUnlock()
+
+	if s2 == nil {
+		return s.Copy()
+	}
+
+	s.ForEach(func(item interface{}) {
+		union.Add(item)
+	})
+	s2.ForEach(func(item interface{}) {
+		union.Add(item)
+	})
+
+	return union
 }
 
 // Package private methods

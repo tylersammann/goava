@@ -62,16 +62,16 @@ func main() {
 	fmt.Print("\n== Equality ==\n")
 
 	emptySet2 := sets.New()
-	fmt.Printf("empty set equals empty set: %v\n", sets.Equals(emptySet, emptySet2))
+	fmt.Printf("empty set equals empty set: %v\n", emptySet.Equals(emptySet2))
 
 	strSet2 := strSet.Copy()
-	fmt.Printf("str set equals str set 2: %v\n", sets.Equals(strSet, strSet2))
+	fmt.Printf("str set equals str set 2: %v\n", strSet.Equals(strSet2))
 	strSet2.Add("non-sense")
-	fmt.Printf("should not equal diff str set: %v\n", sets.Equals(strSet, strSet2))
+	fmt.Printf("should not equal diff str set: %v\n", strSet.Equals(strSet2))
 
-	fmt.Printf("empty set equals empty int set: %v\n", sets.Equals(emptySet, intSet))
-	fmt.Printf("str set equals empty int set: %v\n", sets.Equals(strSet, intSet))
-	fmt.Printf("empty set equals str set: %v\n", sets.Equals(emptySet, strSet))
+	fmt.Printf("empty set equals empty int set: %v\n", emptySet.Equals(intSet))
+	fmt.Printf("str set equals empty int set: %v\n", strSet.Equals(intSet))
+	fmt.Printf("empty set equals str set: %v\n", emptySet.Equals(strSet))
 
 	// Contains
 	fmt.Print("\n== Contains ==\n")
@@ -126,13 +126,13 @@ func main() {
 	setA := sets.New(1, 2, 3)
 	setB := sets.New(2, 3, 4, 5)
 
-	diff := sets.Difference(setA, setB)
+	diff := setA.Difference(setB)
 	fmt.Printf("diff %v %v: %v\n", setA, setB, diff)
 
-	diff2 := sets.Difference(setB, setA)
+	diff2 := setB.Difference(setA)
 	fmt.Printf("diff %v %v: %v\n", setB, setA, diff2)
 
-	diff3 := sets.Difference(setA, setA)
+	diff3 := setA.Difference(setA)
 	fmt.Printf("diff %v %v: %v\n", setA, setA, diff3)
 
 	// Intersection
@@ -141,22 +141,22 @@ func main() {
 	setC := sets.New(1, 2, 3)
 	setD := sets.New(2, 3, 4, 5)
 
-	inter := sets.Intersection(setC, setD)
+	inter := setC.Intersection(setD)
 	fmt.Printf("intersection %v %v: %v\n", setC, setD, inter)
 
-	inter2 := sets.Intersection(setC, setC)
+	inter2 := setC.Intersection(setC)
 	fmt.Printf("intersection %v %v: %v\n", setC, setC, inter2)
 
-	inter3 := sets.Intersection(setC, sets.New())
+	inter3 := setC.Intersection(sets.New())
 	fmt.Printf("intersection %v %v: %v\n", setC, sets.New(), inter3)
 
-	union := sets.Union(setC, setD)
+	union := setC.Union(setD)
 	fmt.Printf("union %v %v: %v\n", setC, setD, union)
 
-	union2 := sets.Union(setC, setC)
+	union2 := setC.Union(setC)
 	fmt.Printf("union %v %v: %v\n", setC, setC, union2)
 
-	union3 := sets.Union(setC, sets.New())
+	union3 := setC.Union(sets.New())
 	fmt.Printf("union %v %v: %v\n", setC, sets.New(), union3)
 }
 
@@ -165,5 +165,5 @@ func printSet(str string, set sets.Set) {
 }
 
 func printContains(set1 sets.Set, set2 sets.Set) {
-	fmt.Printf("%v contains %v: %v\n", set1, set2, sets.Contains(set1, set2))
+	fmt.Printf("%v contains %v: %v\n", set1, set2, set1.Contains(set2))
 }

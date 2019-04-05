@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"fmt"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNew_withEmtpySet(t *testing.T) {
@@ -109,6 +109,78 @@ func TestRemove_fromEmptySet(t *testing.T) {
 
 	actual.Remove(3)
 	assertMatchingValues(t, New(), actual)
+}
+
+func TestCopy_emptySet(t *testing.T) {
+	expected := New()
+	actual := expected.Copy()
+
+	assertMatchingValues(t, expected, actual)
+	assert.False(t, expected == actual)
+}
+
+func TestCopy(t *testing.T) {
+	expected := New(1.2, 3.4)
+	actual := expected.Copy()
+
+	assertMatchingValues(t, expected, actual)
+	assert.False(t, expected == actual)
+}
+
+func TestForEach_emptySet(t *testing.T) {
+	actual := New()
+
+	actual.ForEach(func(item interface{}) {
+		assert.Fail(t, "The empty set should have no items. The method should not get called")
+	})
+}
+
+func TestForEach(t *testing.T) {
+	numbers := New(8, 9, 10, 11)
+	expected := New(18, 19, 20, 21)
+	actual := New()
+
+	numbers.ForEach(func(item interface{}) {
+		intItem := item.(int)
+		actual.Add(intItem + 10)
+	})
+
+	assertMatchingValues(t, expected, actual)
+}
+
+func TestFindFirst_emptySet(t *testing.T) {
+	actual := New()
+
+	actual.FindFirst(func(item interface{}) bool {
+		assert.Fail(t, "The empty set should have no items. The method should not get called")
+		return false
+	})
+}
+
+func TestFindFirst_everyItemMeetsCondition(t *testing.T) {
+	numbers := New(8, 9)
+	calls := 0
+
+	actual := numbers.FindFirst(func(item interface{}) bool {
+		calls++
+		return item.(int) > 1
+	})
+
+	assert.Equal(t, 1, calls)
+	assert.True(t, actual == 8 || actual == 9)
+}
+
+func TestFindFirst(t *testing.T) {
+	numbers := New(8, 9, 10, 11)
+	calls := 0
+
+	actual := numbers.FindFirst(func(item interface{}) bool {
+		calls++
+		return item.(int) > 9
+	})
+
+	assert.True(t, calls > 0 && calls <= 3)
+	assert.True(t, actual == 10 || actual == 11)
 }
 
 func assertMatchingValues(t *testing.T, expected Set, actual Set) {
